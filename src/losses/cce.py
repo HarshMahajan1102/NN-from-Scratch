@@ -1,7 +1,7 @@
 import numpy as np
 
-sm_op = np.array([0.75, 0.1, 0.15])
-tg_op = np.array([1, 0, 0])
+class CCE:
 
-cce = -np.sum(tg_op * np.log(sm_op))
-print(cce)
+    def forward(self, y_p, y_t):
+        self.output = -np.sum(y_t * np.log(y_p))
+        return self.output
