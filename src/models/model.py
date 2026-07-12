@@ -135,6 +135,14 @@ class Model:
 
         return results
 
+    def save(self, path):
+        from src.utils.persistence import save_model
+        save_model(self, path)
+
+    def load(self, path):
+        from src.utils.persistence import load_model
+        load_model(self, path)
+
 if __name__ == "__main__":
 
     from src.layers.dense import Dense
