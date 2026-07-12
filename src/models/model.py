@@ -14,12 +14,16 @@ class Model:
         self.optimizer = optimizer
         self.metrics = metrics if metrics is not None else []
 
-    def forward(self, X):
+    def forward(self, X, training=False):
+
         output = X
-
+        
         for l in self.layers:
-            output = l.forward(output)
-
+            if hasattr(l, "rate"):
+                output = l.forward(output, training=training)
+            else:
+                output = l.forward(output)
+        
         return output
 
     def backward(self, dval):
@@ -33,7 +37,7 @@ class Model:
 
     def predict(self, X, return_classes=False):
 
-        output = self.forward(X)
+        output = self.forward(X, training=False)
 
         if return_classes:
             return np.argmax(output, axis=1)
@@ -50,7 +54,7 @@ class Model:
 
     def _train_step(self, X, y):
 
-        output = self.forward(X)
+        output = self.forward(X, training=True)
         loss = self.loss.forward(output, y)
         self.loss.backward(self.loss.output, y)
         self.backward(self.loss.di)
@@ -60,10 +64,10 @@ class Model:
                 self.optimizer.update(l)
 
         m_scores = {}
-
         for m in self.metrics:
             key = m.__class__.__name__.lower()
             m_scores[key] = m.calculate(output, y)
+
         return loss, m_scores
 
     def fit(self, X, y, epochs=100, batch_size=None, verbose=True):
