@@ -2,8 +2,17 @@
 import numpy as np
 
 class Dense:
-    def __init__(self, n_inputs, n_neurons):
-        self.weight = np.random.randn(n_inputs, n_neurons)
+
+    def __init__(self, n_inputs, n_neurons, init="random"):
+        if init == "random":
+            self.weight = np.random.randn(n_inputs, n_neurons)
+        elif init == "xavier":
+            self.weight = np.random.randn(n_inputs, n_neurons) * np.sqrt(1 / n_inputs)
+        elif init == "he":
+            self.weight = np.random.randn(n_inputs, n_neurons) * np.sqrt(2 / n_inputs)
+        else:
+            raise ValueError("Initialization must be 'random', 'xavier', or 'he'.")
+    
         self.biases = np.random.rand(1, n_neurons)
 
     def forward(self, inputs):
