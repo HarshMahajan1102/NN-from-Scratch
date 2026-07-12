@@ -1,47 +1,56 @@
+from src.layers.dense import Dense
+from src.activations.relu import ReLU
+from src.activations.softmax import Softmax
+from src.losses.cce import CCE
+
 import numpy as np
+
 np.random.seed(11)
 
-inputs = [[0.3, 2.9, 4.0, -0.5],
-          [1.0, 0.5, -1.0, 2.0],
-          [-1.5, 2.3, 0.0, 3.1],
-          [3.2, -0.1, 0.0, 1.5],
-          [2.0, 1.0, -2.0, 0.5]]
+X = np.array([
+    [1.0, 2.0, 3.0, 2.5, 1.5],
+    [2.0, 5.0, 1.0, 2.0, 4.0],
+    [3.0, 6.0, 2.0, 1.0, 5.0],
+    [4.0, 7.0, 3.0, 2.0, 6.0]
+])
 
-class Layer:
-    def __init__(self, n_inputs, n_neurons):
-        self.weights = np.random.randn(n_inputs, n_neurons)
-        self.biases = np.random.rand(n_neurons)
+y = np.array([
+    [1, 0, 0],
+    [0, 1, 0],
+    [0, 0, 1],
+    [1, 0, 0]
+])
 
-    def forward(self, inputs):
-        self.output = np.dot(inputs, self.weights) + self.biases
-        return self.output
+dense1 = Dense(5, 6)
+relu = ReLU()
 
-def ReLU(in_vals):
-    return np.maximum(0, in_vals)
+dense2 = Dense(6, 3)
+softmax = Softmax()
 
-def softMax(in_vals):
-    in_vals -= np.max(in_vals, axis=1, keepdims=True)
-    exp_vals = np.exp(in_vals)
-    return exp_vals / np.sum(exp_vals, axis=1, keepdims=True)
+loss_fn = CCE()
 
-def cce(pred_op, tar_op):
-    return -np.sum(tar_op * np.log(pred_op), axis=1, keepdims=True)
+d1_output = dense1.forward(X)
+relu_output = relu.forward(d1_output)
 
-l1 = Layer(4, 3)
-l1_op = l1.forward(inputs)
-l1_op_act = ReLU(l1_op)
+d2_output = dense2.forward(relu_output)
+out = softmax.forward(d2_output)
 
-l2 = Layer(3, 4)
-l2_op = l2.forward(l1_op_act)
-l2_op_act = softMax(l2_op)
+loss = loss_fn.forward(out, y)
 
-print("Output:\n", l2_op_act)
+print("Dense Layer 1 Output:")
+print(d1_output)
 
-target = np.array([[1, 0, 0, 0],
-                   [0, 1, 0, 0],
-                   [0, 0, 1, 0],
-                   [0, 0, 0, 1],
-                   [1, 0, 0, 0]])
+print("\nReLU Output:")
+print(relu_output)
 
-loss = cce(l2_op_act, target)
-print("\nLoss:\n", loss)
+print("\nDense Layer 2 Output:")
+print(d2_output)
+
+print("\nSoftmax Probabilities:")
+print(out)
+
+print("\nRow Sums:")
+print(np.sum(out, axis=1))
+
+print("\nCategorical Cross Entropy Loss:")
+print(loss)
